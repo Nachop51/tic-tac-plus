@@ -1,8 +1,11 @@
 import './App.css'
+import Board from './components/Board/'
 
 function App () {
   return (
-    <h1 className='text-5xl font-bold'>Empty project :)</h1>
+    <main className='min-h-screen grid place-items-center'>
+      <Board />
+    </main>
   )
 }
 
