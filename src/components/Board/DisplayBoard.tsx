@@ -1,16 +1,13 @@
 import { BOARD_SIZE } from '../../constants'
-import { Cell } from '../../types'
+import { useGameStore } from '../../store/game'
 import { isOccupied } from '../../utils/board'
 
-interface DisplayBoardProps {
-  currentPlayer: 'X' | 'O'
-  board: Cell[]
-  placeMark: (rowIndex: number, cellIndex: number) => void
-  placeHover: (rowIndex: number, cellIndex: number) => void
-  removeHover: (rowIndex: number, cellIndex: number) => void
-}
+const DisplayBoard = () => {
+  const board = useGameStore((state) => state.board)
+  const placeHover = useGameStore((state) => state.placeHover)
+  const removeHover = useGameStore((state) => state.removeHover)
+  const placeMark = useGameStore((state) => state.placeMark)
 
-const DisplayBoard = ({ board, placeHover, placeMark, removeHover }: DisplayBoardProps) => {
   const handleMouseEnter = (rowIndex: number, cellIndex: number) => {
     if (isOccupied(rowIndex, cellIndex, board)) return
     placeHover(rowIndex, cellIndex)
