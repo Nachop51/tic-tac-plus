@@ -1,6 +1,7 @@
 import { BOARD_SIZE } from '../../constants'
 import { useGameStore } from '../../store/game'
 import { isOccupied } from '../../utils/board'
+import { CircleIcon, CrossIcon } from '../icons'
 
 const DisplayBoard = () => {
   const board = useGameStore((state) => state.board)
@@ -24,7 +25,7 @@ const DisplayBoard = () => {
   }
 
   return (
-    <div className='grid grid-cols-3 text-4xl'>
+    <div className='grid grid-cols-3 text-3xl'>
       {
       board.map((cell, index) => {
         const rowIndex = Math.floor(index / BOARD_SIZE)
@@ -32,7 +33,7 @@ const DisplayBoard = () => {
         return (
           <div
             key={index}
-            className='w-40 h-40 border border-gray-300 flex items-center justify-center'
+            className='w-40 h-40 border border-gray-300 flex items-center justify-center select-none'
             onMouseEnter={() => handleMouseEnter(rowIndex, cellIndex)}
             onMouseLeave={() => handleMouseLeave(rowIndex, cellIndex)}
             onClick={() => handleClick(rowIndex, cellIndex)}
@@ -40,14 +41,14 @@ const DisplayBoard = () => {
             {
               cell.hoveredPlayer
                 ? (
-                  <span className=''>
-                    {cell.hoveredPlayer}
+                  <span className='opacity-40'>
+                    {cell.hoveredPlayer === 'X' ? <CrossIcon /> : <CircleIcon />}
                   </span>
                   )
                 : (
                     cell.current && (
-                      <span className={`text-${cell.current === 'X' ? 'red' : 'blue'}-800`}>
-                        {cell.current}
+                      <span className='opacity-100'>
+                        {cell.current === 'X' ? <CrossIcon /> : <CircleIcon />}
                       </span>
                     )
                   )

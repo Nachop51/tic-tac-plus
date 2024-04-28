@@ -28,6 +28,7 @@ export const useGameStore = create<Game>()((set) => {
         if (state.winner) return state
         const newBoard = [...state.board]
         newBoard[rowIndex * BOARD_SIZE + cellIndex].current = state.currentPlayer
+        newBoard[rowIndex * BOARD_SIZE + cellIndex].hoveredPlayer = null
 
         const winner = checkWinner(newBoard)
         const isDraw = checkDraw(newBoard)
