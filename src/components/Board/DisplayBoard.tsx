@@ -41,13 +41,13 @@ const DisplayBoard = () => {
             {
               cell.hoveredPlayer
                 ? (
-                  <span className='opacity-40'>
+                  <span className='opacity-40 grayscale'>
                     {cell.hoveredPlayer === 'X' ? <CrossIcon /> : <CircleIcon />}
                   </span>
                   )
                 : (
                     cell.current && (
-                      <span className='opacity-100'>
+                      <span className={cell?.nextToRemove ? 'opacity-40' : ''}>
                         {cell.current === 'X' ? <CrossIcon /> : <CircleIcon />}
                       </span>
                     )

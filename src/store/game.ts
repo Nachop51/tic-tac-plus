@@ -1,13 +1,13 @@
 import { create } from 'zustand'
-import { Cell } from '../types'
+import { Cell, Move, MoveHistory } from '../types'
 import { checkDraw, checkWinner, createBoard } from '../utils/board'
 import { BOARD_SIZE } from '../constants'
 
 interface Game {
   currentPlayer: 'X' | 'O'
   board: Cell[]
-  winner: 'X' | 'O' | null
-  isDraw: boolean
+  moveHistory: MoveHistory
+  gameResult: 'X' | 'O' | 'draw' | null
   placeMark: (rowIndex: number, cellIndex: number) => void
   placeHover: (rowIndex: number, cellIndex: number) => void
   removeHover: (rowIndex: number, cellIndex: number) => void
@@ -18,27 +18,53 @@ export const useGameStore = create<Game>()((set) => {
   return {
     currentPlayer: 'X',
     board: createBoard(BOARD_SIZE),
-    winner: null,
-    isDraw: false,
+    moveHistory: [],
+    gameResult: null,
     resetGame: () => {
-      set({ currentPlayer: 'X', board: createBoard(BOARD_SIZE), isDraw: false, winner: null })
+      set({ currentPlayer: 'X', board: createBoard(BOARD_SIZE), gameResult: null, moveHistory: [] })
     },
     placeMark: (rowIndex, cellIndex) => {
       set((state) => {
-        if (state.winner) return state
+        if (state.gameResult) return state
+
         const newBoard = [...state.board]
-        newBoard[rowIndex * BOARD_SIZE + cellIndex].current = state.currentPlayer
-        newBoard[rowIndex * BOARD_SIZE + cellIndex].hoveredPlayer = null
 
-        const winner = checkWinner(newBoard)
-        const isDraw = checkDraw(newBoard)
+        if (state.moveHistory.length >= 5) {
+          newBoard[state.moveHistory[state.moveHistory.length - 5].pos].nextToRemove = true
+        }
 
-        return { board: newBoard, currentPlayer: state.currentPlayer === 'X' ? 'O' : 'X', winner, isDraw }
+        if (state.moveHistory.length >= 6) {
+          newBoard[state.moveHistory[state.moveHistory.length - 6].pos] = {
+            current: null,
+            hoveredPlayer: null
+          }
+        }
+
+        newBoard[rowIndex * BOARD_SIZE + cellIndex] = {
+          current: state.currentPlayer,
+          hoveredPlayer: null
+        }
+
+        const gameResult = checkWinner(newBoard) || (checkDraw(newBoard) ? 'draw' : null)
+
+        const newMove: Move = {
+          cell: newBoard[rowIndex * BOARD_SIZE + cellIndex],
+          pos: rowIndex * BOARD_SIZE + cellIndex
+        }
+
+        const moveHistory = [...state.moveHistory, newMove]
+
+        return {
+          board: newBoard,
+          currentPlayer: state.currentPlayer === 'X' ? 'O' : 'X',
+          gameResult,
+          moveHistory
+        }
       })
     },
     placeHover: (rowIndex, cellIndex) => {
       set((state) => {
-        if (state.winner || state.isDraw) return state
+        if (state.gameResult) return state
         const newBoard = [...state.board]
         newBoard[rowIndex * BOARD_SIZE + cellIndex].hoveredPlayer = state.currentPlayer
         return { board: newBoard }
@@ -46,7 +72,7 @@ export const useGameStore = create<Game>()((set) => {
     },
     removeHover: (rowIndex, cellIndex) => {
       set((state) => {
-        if (state.winner || state.isDraw) return state
+        if (state.gameResult) return state
         const newBoard = [...state.board]
         newBoard[rowIndex * BOARD_SIZE + cellIndex].hoveredPlayer = null
         return { board: newBoard }
