@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useGameStore } from '../../store/game'
 import DisplayBoard from './DisplayBoard'
 import CurrentPlayer from './CurrentPlayer'
+import { Button } from '@/components/ui/button'
 
 const Board = () => {
   const gameResult = useGameStore((state) => state.gameResult)
@@ -15,24 +16,16 @@ const Board = () => {
   }, [gameResult])
 
   return (
-    <section>
-      <h1 className='text-4xl text-center mb-8'>
-        {
-          gameResult === 'draw'
-            ? 'Draw!'
-            : `${gameResult} wins!`
-        }
-      </h1>
-
+    <section className='w-full max-w-3xl'>
       <DisplayBoard />
 
-      {(gameResult) && (
-        <button
-          className='block mx-auto mt-8 bg-blue-500 text-white px-4 py-2 rounded-lg'
+      {gameResult && (
+        <Button
+          className='block mx-auto mt-8'
           onClick={resetGame}
         >
           Play again
-        </button>
+        </Button>
       )}
 
       <CurrentPlayer />

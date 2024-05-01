@@ -9,7 +9,7 @@ const CurrentPlayer = () => {
     <>
       {
       !gameResult && (
-        <div className='border border-gray-400 rounded-lg bg-gray-800/50 w-fit mx-auto mt-8'>
+        <div className='border border-gray-400 rounded-lg bg-gray-800/50 w-fit mx-auto mt-8 max-w-20'>
           {currentPlayer === 'X'
             ? <CrossIcon />
             : <CircleIcon />}

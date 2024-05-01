@@ -25,7 +25,7 @@ const DisplayBoard = () => {
   }
 
   return (
-    <div className='grid grid-cols-3 text-3xl'>
+    <div className='grid grid-cols-3 w-full'>
       {
       board.map((cell, index) => {
         const rowIndex = Math.floor(index / BOARD_SIZE)
@@ -33,7 +33,7 @@ const DisplayBoard = () => {
         return (
           <div
             key={index}
-            className='w-40 h-40 border border-gray-300 flex items-center justify-center select-none'
+            className='h-auto border border-gray-300 flex items-center justify-center select-none aspect-square p-4'
             onMouseEnter={() => handleMouseEnter(rowIndex, cellIndex)}
             onMouseLeave={() => handleMouseLeave(rowIndex, cellIndex)}
             onClick={() => handleClick(rowIndex, cellIndex)}
@@ -45,13 +45,11 @@ const DisplayBoard = () => {
                     {cell.hoveredPlayer === 'X' ? <CrossIcon /> : <CircleIcon />}
                   </span>
                   )
-                : (
-                    cell.current && (
-                      <span className={cell?.nextToRemove ? 'opacity-40' : ''}>
-                        {cell.current === 'X' ? <CrossIcon /> : <CircleIcon />}
-                      </span>
-                    )
-                  )
+                : (cell.current && (
+                  <span className={cell?.nextToRemove ? 'opacity-40' : ''}>
+                    {cell.current === 'X' ? <CrossIcon /> : <CircleIcon />}
+                  </span>
+                  ))
             }
           </div>
         )
