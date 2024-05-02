@@ -1,4 +1,4 @@
-import { BOARD_SIZE, WINNING_COMBOS } from '../constants'
+import { BOARD_SIZE, WINNING_COMBOS } from '../lib/constants'
 import { Cell } from '../types'
 
 export function createBoard (size: number): Cell[] {
@@ -9,7 +9,10 @@ export function createBoard (size: number): Cell[] {
   return board
 }
 
-export function isOccupied (rowIndex: number, cellIndex: number, board: Cell[]) {
+export function isOccupied (index: number, board: Cell[]) {
+  const rowIndex = Math.floor(index / BOARD_SIZE)
+  const cellIndex = index % BOARD_SIZE
+
   return board[rowIndex * BOARD_SIZE + cellIndex].current !== null
 }
 

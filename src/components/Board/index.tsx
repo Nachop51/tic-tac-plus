@@ -1,28 +1,44 @@
-import { useEffect } from 'react'
 import { useGameStore } from '../../store/game'
 import DisplayBoard from './DisplayBoard'
 import CurrentPlayer from './CurrentPlayer'
 import { Button } from '@/components/ui/button'
+import { useEffect } from 'react'
+import { socket } from '@/lib/socket'
+import { Move } from '@/types'
+import { GAME_SOCKET_EVENTS } from '@/lib/constants'
 
 const Board = () => {
   const gameResult = useGameStore((state) => state.gameResult)
-  const moveHistory = useGameStore((state) => state.moveHistory)
+  const placeMark = useGameStore((state) => state.placeMark)
   const resetGame = useGameStore((state) => state.resetGame)
 
-  console.log({ moveHistory })
+  const handleClick = () => {
+    socket.emit(GAME_SOCKET_EVENTS.RESET)
+    resetGame()
+  }
 
   useEffect(() => {
-    console.log({ gameResult })
-  }, [gameResult])
+    function onNewMove (move: Move) {
+      placeMark(move.pos)
+    }
+
+    socket.on(GAME_SOCKET_EVENTS.RESET, resetGame)
+    socket.on(GAME_SOCKET_EVENTS.NEW_MOVE, onNewMove)
+
+    return () => {
+      socket.off(GAME_SOCKET_EVENTS.RESET, resetGame)
+      socket.off(GAME_SOCKET_EVENTS.NEW_MOVE, onNewMove)
+    }
+  }, [resetGame, placeMark])
 
   return (
-    <section className='w-full max-w-3xl'>
+    <section className='w-full max-w-lg'>
       <DisplayBoard />
 
       {gameResult && (
         <Button
           className='block mx-auto mt-8'
-          onClick={resetGame}
+          onClick={handleClick}
         >
           Play again
         </Button>

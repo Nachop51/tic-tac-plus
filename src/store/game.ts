@@ -1,16 +1,16 @@
 import { create } from 'zustand'
 import { Cell, Move, MoveHistory } from '../types'
 import { checkDraw, checkWinner, createBoard } from '../utils/board'
-import { BOARD_SIZE } from '../constants'
+import { BOARD_SIZE } from '../lib/constants'
 
 interface Game {
   currentPlayer: 'X' | 'O'
   board: Cell[]
   moveHistory: MoveHistory
   gameResult: 'X' | 'O' | 'draw' | null
-  placeMark: (rowIndex: number, cellIndex: number) => void
-  placeHover: (rowIndex: number, cellIndex: number) => void
-  removeHover: (rowIndex: number, cellIndex: number) => void
+  placeMark: (index: number) => void
+  placeHover: (index: number) => void
+  removeHover: (index: number) => void
   resetGame: () => void
 }
 
@@ -23,7 +23,7 @@ export const useGameStore = create<Game>()((set) => {
     resetGame: () => {
       set({ currentPlayer: 'X', board: createBoard(BOARD_SIZE), gameResult: null, moveHistory: [] })
     },
-    placeMark: (rowIndex, cellIndex) => {
+    placeMark: (index: number) => {
       set((state) => {
         if (state.gameResult) return state
 
@@ -40,7 +40,7 @@ export const useGameStore = create<Game>()((set) => {
           }
         }
 
-        newBoard[rowIndex * BOARD_SIZE + cellIndex] = {
+        newBoard[index] = {
           current: state.currentPlayer,
           hoveredPlayer: null
         }
@@ -48,11 +48,14 @@ export const useGameStore = create<Game>()((set) => {
         const gameResult = checkWinner(newBoard) || (checkDraw(newBoard) ? 'draw' : null)
 
         const newMove: Move = {
-          cell: newBoard[rowIndex * BOARD_SIZE + cellIndex],
-          pos: rowIndex * BOARD_SIZE + cellIndex
+          cell: newBoard[index],
+          pos: index
         }
 
         const moveHistory = [...state.moveHistory, newMove]
+
+        console.log({ moveHistory })
+        console.log({ newMove })
 
         return {
           board: newBoard,
@@ -62,19 +65,19 @@ export const useGameStore = create<Game>()((set) => {
         }
       })
     },
-    placeHover: (rowIndex, cellIndex) => {
+    placeHover: (index: number) => {
       set((state) => {
         if (state.gameResult) return state
         const newBoard = [...state.board]
-        newBoard[rowIndex * BOARD_SIZE + cellIndex].hoveredPlayer = state.currentPlayer
+        newBoard[index].hoveredPlayer = state.currentPlayer
         return { board: newBoard }
       })
     },
-    removeHover: (rowIndex, cellIndex) => {
+    removeHover: (index: number) => {
       set((state) => {
         if (state.gameResult) return state
         const newBoard = [...state.board]
-        newBoard[rowIndex * BOARD_SIZE + cellIndex].hoveredPlayer = null
+        newBoard[index].hoveredPlayer = null
         return { board: newBoard }
       })
     }
