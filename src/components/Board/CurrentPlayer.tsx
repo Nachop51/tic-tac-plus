@@ -3,7 +3,7 @@ import { useGameStore } from '../../store/game'
 import { CircleIcon, CrossIcon } from '../icons'
 
 type CurrentPlayerProps = {
-  player: Player
+  player?: Player
 }
 
 const CurrentPlayer = ({ player }: CurrentPlayerProps) => {

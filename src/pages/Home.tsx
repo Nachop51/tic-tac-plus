@@ -33,6 +33,21 @@ const Home = () => {
           Play now!
         </Link>
       </Button>
+
+      <h2>Or just play locally!</h2>
+
+      <p>
+        You can play against the computer or with a friend.
+      </p>
+
+      <Button
+        variant='default'
+        asChild
+      >
+        <Link to='/local-game' className='mt-10'>
+          Play locally!
+        </Link>
+      </Button>
     </main>
   )
 }

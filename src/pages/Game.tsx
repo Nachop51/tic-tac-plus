@@ -6,7 +6,11 @@ import { GAME_SOCKET_EVENTS } from '@/lib/constants'
 import { socket } from '@/lib/socket'
 import type { Player } from '@/types'
 
-const Game = ({ roomId }: { roomId: string }) => {
+type GameProps = {
+  roomId: string
+}
+
+const Game = ({ roomId }: GameProps) => {
   const [players, setPlayers] = useState<Record<string, Player>>({})
   const [, setLocation] = useLocation()
   const link = `${window.location.origin}/game/${roomId}`
@@ -55,7 +59,7 @@ const Game = ({ roomId }: { roomId: string }) => {
 
   return (
     <main className='flex flex-col items-center'>
-      <Board player={players[socket.id!]} />
+      <Board player={players[socket.id!]} onlineGame />
     </main>
   )
 }

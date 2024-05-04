@@ -6,10 +6,11 @@ import { socket } from '@/lib/socket'
 import type { Player } from '@/types'
 
 type DisplayProps = {
-  player: Player
+  player?: Player
+  onlineGame: boolean
 }
 
-const DisplayBoard = ({ player }: DisplayProps) => {
+const DisplayBoard = ({ player, onlineGame }: DisplayProps) => {
   const board = useGameStore((state) => state.board)
   const currentPlayer = useGameStore((state) => state.currentPlayer)
   const placeHover = useGameStore((state) => state.placeHover)
@@ -23,7 +24,7 @@ const DisplayBoard = ({ player }: DisplayProps) => {
   }, [currentPlayer, player])
 
   const handleMouseEnter = (index: number) => {
-    if (!isPlayerTurn) return
+    if (onlineGame && !isPlayerTurn) return
 
     return () => {
       if (isOccupied(index, board)) return
@@ -32,7 +33,7 @@ const DisplayBoard = ({ player }: DisplayProps) => {
   }
 
   const handleMouseLeave = (index: number) => {
-    if (!isPlayerTurn) return
+    if (onlineGame && !isPlayerTurn) return
 
     return () => {
       if (isOccupied(index, board)) return
@@ -41,12 +42,14 @@ const DisplayBoard = ({ player }: DisplayProps) => {
   }
 
   const handleClick = (index: number) => {
-    if (!isPlayerTurn) return
+    if (onlineGame && !isPlayerTurn) return
 
     return () => {
       if (isOccupied(index, board)) return
 
-      socket.emit('game:newMove', { pos: index, player: currentPlayer })
+      if (onlineGame) {
+        socket.emit('game:newMove', { pos: index, player: currentPlayer })
+      }
       placeMark(index)
     }
   }

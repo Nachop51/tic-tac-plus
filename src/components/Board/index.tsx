@@ -8,10 +8,11 @@ import type { Move, Player } from '@/types'
 import { GAME_SOCKET_EVENTS } from '@/lib/constants'
 
 type BoardProps = {
-  player: Player
+  player?: Player
+  onlineGame: boolean
 }
 
-const Board = ({ player }: BoardProps) => {
+const Board = ({ player, onlineGame }: BoardProps) => {
   const gameResult = useGameStore((state) => state.gameResult)
   const placeMark = useGameStore((state) => state.placeMark)
   const resetGame = useGameStore((state) => state.resetGame)
@@ -22,6 +23,8 @@ const Board = ({ player }: BoardProps) => {
   }
 
   useEffect(() => {
+    if (!onlineGame) return
+
     function onNewMove (move: Move) {
       placeMark(move.pos)
     }
@@ -33,11 +36,11 @@ const Board = ({ player }: BoardProps) => {
       socket.off(GAME_SOCKET_EVENTS.RESET, resetGame)
       socket.off(GAME_SOCKET_EVENTS.NEW_MOVE, onNewMove)
     }
-  }, [resetGame, placeMark])
+  }, [resetGame, placeMark, onlineGame])
 
   return (
     <section className='w-full max-w-lg'>
-      <DisplayBoard player={player} />
+      <DisplayBoard player={player} onlineGame={onlineGame} />
 
       {gameResult && (
         <Button
