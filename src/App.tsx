@@ -5,6 +5,7 @@ import HomePage from './pages/Home'
 import { Switch, Route } from 'wouter'
 import GamePage from './pages/Game'
 import GameNotFound from './pages/GameNotFound'
+import CreateGamePage from './pages/CreateGame'
 
 function App () {
   const [isConnected, setIsConnected] = useState(socket.connected)
@@ -36,12 +37,10 @@ function App () {
           <HomePage />
         </Route>
         <Route path='/game'>
-          <GamePage />
+          <CreateGamePage />
         </Route>
         <Route path='/game/:roomId'>
-          {
-            (params) => <GamePage roomId={params.roomId} />
-          }
+          {(params) => <GamePage roomId={params.roomId} />}
         </Route>
         <Route path='/game/error/notFound'>
           <GameNotFound />

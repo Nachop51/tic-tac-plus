@@ -1,69 +1,61 @@
-import Board from '@/components/Board'
-import { GAME_SOCKET_EVENTS } from '@/lib/constants'
-import { socket } from '@/lib/socket'
 import { useEffect, useState } from 'react'
 import { useLocation } from 'wouter'
+import Board from '@/components/Board'
+import { Button } from '@/components/ui/button'
+import { GAME_SOCKET_EVENTS } from '@/lib/constants'
+import { socket } from '@/lib/socket'
+import type { Player } from '@/types'
 
-const Game = ({ roomId }: { roomId?: string }) => {
-  const [roomCreated, setRoomCreated] = useState(false)
-  const [playerJoined, setPlayerJoined] = useState(false)
-  const [currentRoomId, setCurrentRoomId] = useState<string | null>(null)
+const Game = ({ roomId }: { roomId: string }) => {
+  const [players, setPlayers] = useState<Record<string, Player>>({})
   const [, setLocation] = useLocation()
+  const link = `${window.location.origin}/game/${roomId}`
 
   useEffect(() => {
-    if (roomId) {
-      const onRoomNotFound = () => {
-        setLocation('/game/error/notFound')
-      }
+    const onRoomNotFound = () => {
+      setLocation('/game/error/notFound')
+    }
 
-      socket.emit(GAME_SOCKET_EVENTS.JOIN_ROOM, roomId)
+    const onAllPlayersReady = (data: Record<string, Player>) => {
+      setPlayers(data)
+    }
 
-      socket.on(GAME_SOCKET_EVENTS.ROOM_NOT_FOUND, onRoomNotFound)
+    // Register event listeners
+    socket.on(GAME_SOCKET_EVENTS.ROOM_NOT_FOUND, onRoomNotFound)
+    socket.on(GAME_SOCKET_EVENTS.ALL_PLAYERS_READY, onAllPlayersReady)
 
-      return () => {
-        socket.off(GAME_SOCKET_EVENTS.ROOM_NOT_FOUND, onRoomNotFound)
-      }
+    socket.emit(GAME_SOCKET_EVENTS.JOIN_ROOM, roomId)
+
+    return () => {
+      socket.off(GAME_SOCKET_EVENTS.ROOM_NOT_FOUND, onRoomNotFound)
+      socket.off(GAME_SOCKET_EVENTS.ALL_PLAYERS_READY, onAllPlayersReady)
     }
   }, [roomId, setLocation])
 
-  useEffect(() => {
-    if (!roomId) {
-      socket.emit(GAME_SOCKET_EVENTS.CREATE_ROOM)
+  if (!players[socket.id!]) {
+    return (
+      <main className='mt-20 flex flex-col justify-center'>
+        <h3>
+          Share the link to invite a friend !
+        </h3>
 
-      const onRoomCreated = (roomId: string) => {
-        setRoomCreated(true)
-        setCurrentRoomId(roomId)
-      }
-
-      const onRoomJoined = () => {
-        console.log('Player joined')
-
-        setPlayerJoined(true)
-      }
-
-      socket.on('game:roomCreated', onRoomCreated)
-      socket.on('game:roomJoined', onRoomJoined)
-
-      return () => {
-        socket.off('game:roomCreated', onRoomCreated)
-        socket.off('game:roomJoined', onRoomJoined)
-      }
-    }
-  }, [roomId])
+        <p className='mb-4'>
+          {link}
+        </p>
+        <Button
+          onClick={() => {
+            navigator.clipboard.writeText(link)
+          }}
+        >
+          Copy link
+        </Button>
+      </main>
+    )
+  }
 
   return (
-    <main className=''>
-      {currentRoomId}
-
-      <h3>
-        {roomId ? 'Joining room' : 'Creating room...'}
-        {roomCreated && ' ✅ Room created'}
-      </h3>
-      <h3>
-        {!roomId && roomCreated && 'Waiting for player to join...'}
-        {playerJoined && ' ✅ Player joined'}
-      </h3>
-      {roomCreated && playerJoined && <Board />}
+    <main className='flex flex-col items-center'>
+      <Board player={players[socket.id!]} />
     </main>
   )
 }

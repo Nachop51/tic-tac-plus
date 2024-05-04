@@ -1,30 +1,54 @@
+import { useEffect, useState } from 'react'
 import { useGameStore } from '../../store/game'
 import { isOccupied } from '../../utils/board'
 import { CircleIcon, CrossIcon } from '../icons'
 import { socket } from '@/lib/socket'
+import type { Player } from '@/types'
 
-const DisplayBoard = () => {
+type DisplayProps = {
+  player: Player
+}
+
+const DisplayBoard = ({ player }: DisplayProps) => {
   const board = useGameStore((state) => state.board)
   const currentPlayer = useGameStore((state) => state.currentPlayer)
   const placeHover = useGameStore((state) => state.placeHover)
   const removeHover = useGameStore((state) => state.removeHover)
   const placeMark = useGameStore((state) => state.placeMark)
 
+  const [isPlayerTurn, setIsPlayerTurn] = useState(false)
+
+  useEffect(() => {
+    setIsPlayerTurn(player === currentPlayer)
+  }, [currentPlayer, player])
+
   const handleMouseEnter = (index: number) => {
-    if (isOccupied(index, board)) return
-    placeHover(index)
+    if (!isPlayerTurn) return
+
+    return () => {
+      if (isOccupied(index, board)) return
+      placeHover(index)
+    }
   }
 
   const handleMouseLeave = (index: number) => {
-    if (isOccupied(index, board)) return
-    removeHover(index)
+    if (!isPlayerTurn) return
+
+    return () => {
+      if (isOccupied(index, board)) return
+      removeHover(index)
+    }
   }
 
   const handleClick = (index: number) => {
-    if (isOccupied(index, board)) return
+    if (!isPlayerTurn) return
 
-    socket.emit('game:newMove', { pos: index, player: currentPlayer })
-    placeMark(index)
+    return () => {
+      if (isOccupied(index, board)) return
+
+      socket.emit('game:newMove', { pos: index, player: currentPlayer })
+      placeMark(index)
+    }
   }
 
   return (
@@ -35,9 +59,9 @@ const DisplayBoard = () => {
           <div
             key={index}
             className='h-auto border border-gray-300 flex items-center justify-center select-none aspect-square p-4'
-            onMouseEnter={() => handleMouseEnter(index)}
-            onMouseLeave={() => handleMouseLeave(index)}
-            onClick={() => handleClick(index)}
+            onMouseEnter={handleMouseEnter(index)}
+            onMouseLeave={handleMouseLeave(index)}
+            onClick={handleClick(index)}
           >
             {
               cell.hoveredPlayer

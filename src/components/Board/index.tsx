@@ -4,10 +4,14 @@ import CurrentPlayer from './CurrentPlayer'
 import { Button } from '@/components/ui/button'
 import { useEffect } from 'react'
 import { socket } from '@/lib/socket'
-import { Move } from '@/types'
+import type { Move, Player } from '@/types'
 import { GAME_SOCKET_EVENTS } from '@/lib/constants'
 
-const Board = () => {
+type BoardProps = {
+  player: Player
+}
+
+const Board = ({ player }: BoardProps) => {
   const gameResult = useGameStore((state) => state.gameResult)
   const placeMark = useGameStore((state) => state.placeMark)
   const resetGame = useGameStore((state) => state.resetGame)
@@ -33,7 +37,7 @@ const Board = () => {
 
   return (
     <section className='w-full max-w-lg'>
-      <DisplayBoard />
+      <DisplayBoard player={player} />
 
       {gameResult && (
         <Button
@@ -44,7 +48,7 @@ const Board = () => {
         </Button>
       )}
 
-      <CurrentPlayer />
+      <CurrentPlayer player={player} />
     </section>
   )
 }

@@ -1,7 +1,9 @@
+export type Player = 'X' | 'O'
+
 export type Cell = {
-  current: 'X' | 'O' | null
+  current: Player | null
   nextToRemove?: boolean
-  hoveredPlayer: 'X' | 'O' | null
+  hoveredPlayer: Player | null
 }
 
 export type Move = {
