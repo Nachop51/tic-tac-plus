@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from 'express'
 import logger from 'morgan'
 import cors from 'cors'
@@ -16,10 +17,11 @@ const io = new Server(server, {
   connectionStateRecovery: {
     maxDisconnectionDuration: 3000
   },
-  cors: {
-    origin: ['http://localhost:5173']
-  }
+  cors: { origin: ['http://localhost:5173'] }
 })
+
+app.use(logger('dev'))
+app.use(express.json())
 
 io.on('connection', async (socket) => {
   console.log(`New connection: ${socket.id}`)
@@ -30,8 +32,6 @@ io.on('connection', async (socket) => {
 
   registerGameHandlers(io, socket)
 })
-
-app.use(logger('dev'))
 
 const port = process.env.PORT ?? 3000
 
